@@ -2,6 +2,9 @@
   "name": "secure-recruitment-platform",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=20 <24"
+  },
   "scripts": {
     "dev": "next dev --turbo",
     "build": "prisma generate && next build",
