@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { WpmPrompt, selectRandomPrompt } from "@/lib/assessments/wpm/prompts";
 import { LOCKDOWN_HEARTBEAT_MAX_AGE_MS } from "@/lib/assessments/lockdown/constants";
 import { prisma } from "@/lib/db/prisma";
+import { IS_DEV } from "@/lib/env/isDev";
 
 export type LockdownEventType =
   | "SESSION_STARTED"
@@ -99,10 +100,10 @@ function getMemoryStore() {
   return memoryRoot.__ctrlLockdownStore!;
 }
 
-const DEV_MEMORY_FALLBACK = process.env.NODE_ENV !== "production";
+const DEV_MEMORY_FALLBACK = IS_DEV || process.env.NODE_ENV !== "production";
 
 function shouldUseMemoryOnly() {
-  return DEV_MEMORY_FALLBACK && !process.env.DATABASE_URL;
+  return IS_DEV || !process.env.DATABASE_URL;
 }
 
 function rethrowLockdownStoreError(error: unknown): never {
