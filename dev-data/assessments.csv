@@ -1,0 +1,4 @@
+id,name,category,status,assignedDate,deadline,deadlineCountdown,duration,integrityRequirements,deviceEligibility,actionLabel,actionHref,clientId,candidateId
+typing-speed,Typing Speed Assessment (WPM Test),Communication,Pending,08 May 2026,12 May 2026,Expires in 2 days,10 minutes,Single active browser session|Clipboard paste blocked,Desktop or laptop|Minimum viewport width 1024px,Start Assessment,/portal/candidate/assessments/typing-speed,met,cand01
+situational-judgement,Situational Judgement Test,Decision Making,In Progress,09 May 2026,15 May 2026,Expires in 5 days,25 minutes,Focus monitoring enabled|Session bound to verified device,Desktop required|Stable broadband connection,Resume,/portal/candidate/assessments/situational-judgement,met,cand01
+incident-report,Incident Report Writing,Written Communication,Completed,27 Apr 2026,03 May 2026,Completed,30 minutes,Server-side scoring only,Desktop or laptop,View Result,,nhs,cand02

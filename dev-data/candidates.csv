@@ -1,0 +1,3 @@
+id,name,email,password,clientId,status
+cand01,John Smith,candidate.met@ctrl.dev,DevSuite!123,met,PENDING
+cand02,Amira Patel,candidate.nhs@ctrl.dev,DevSuite!123,nhs,COMPLETED

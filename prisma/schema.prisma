@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CANDIDATE
+  RECRUITER
+  CLIENT
+  SUPER_ADMIN
+}
+
+enum CandidateStatus {
+  PENDING
+  COMPLETED
+  REVIEWED
+  SHARED
+}
+
+enum AuditActionType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  LOGOUT
+  ACCESS_CODE_CREATED
+  ACCESS_CODE_VALIDATED
+  CANDIDATE_REGISTERED
+  CV_UPLOADED
+  CV_VIEW_SIGNED_URL_ISSUED
+  ASSESSMENT_STARTED
+  ASSESSMENT_SUBMITTED
+  CANDIDATE_SHARED_TO_CLIENT
+  ROLE_CHANGED
+}
+
+model User {
+  id                   String              @id @default(uuid()) @db.Uuid
+  email                String              @unique
+  passwordHash         String
+  role                 Role
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  deletedAt            DateTime?
+  recruiterProfile     RecruiterProfile?
+  clientProfile        ClientProfile?
+  candidateProfile     CandidateProfile?
+  loginAttempts        LoginAttempt[]
+  accountLock          AccountLock?
+  auditLogsAsActor     AuditLog[]          @relation("AuditActor")
+  sharedCandidates     CandidateProfile[]  @relation("SharedToClient")
+  lockdownSessions     LockdownSession[]
+
+  @@index([role])
+}
+
+model RateLimitBucket {
+  id        String   @id @default(uuid()) @db.Uuid
+  bucketKey String   @unique
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+}
+
+model RecruiterProfile {
+  id           String             @id @default(uuid()) @db.Uuid
+  userId       String             @unique @db.Uuid
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  deletedAt    DateTime?
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  candidates   CandidateProfile[]
+  accessCodes  AccessCode[]       @relation("RecruiterProfileAccessCodes")
+}
+
+model ClientProfile {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @unique @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CandidateProfile {
+  id                    String               @id @default(uuid()) @db.Uuid
+  userId                String               @unique @db.Uuid
+  recruiterId           String               @db.Uuid
+  sharedWithClientId    String?              @db.Uuid
+  fullName              String
+  cvUrl                 String?
+  cvStorageKey          String?
+  recruiterNotes        String?
+  status                CandidateStatus      @default(PENDING)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  deletedAt             DateTime?
+  user                  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recruiter             RecruiterProfile     @relation(fields: [recruiterId], references: [id], onDelete: Restrict)
+  sharedWithClient      User?                @relation("SharedToClient", fields: [sharedWithClientId], references: [id], onDelete: SetNull)
+  accessCode            AccessCode?
+  candidateAssessments  CandidateAssessment[]
+
+  @@index([recruiterId])
+  @@index([sharedWithClientId])
+}
+
+model AccessCode {
+  id                   String            @id @default(uuid()) @db.Uuid
+  codeHash             String            @unique
+  recruiterId          String            @db.Uuid
+  assignedAssessmentId String?           @db.Uuid
+  expiresAt            DateTime
+  isUsed               Boolean           @default(false)
+  candidateId          String?           @unique @db.Uuid
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  recruiter            RecruiterProfile  @relation("RecruiterProfileAccessCodes", fields: [recruiterId], references: [id], onDelete: Cascade)
+  candidate            CandidateProfile? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  assignedAssessment   Assessment?       @relation(fields: [assignedAssessmentId], references: [id], onDelete: SetNull)
+
+  @@index([recruiterId])
+  @@index([expiresAt])
+}
+
+model Assessment {
+  id                    String                @id @default(uuid()) @db.Uuid
+  title                 String
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  deletedAt             DateTime?
+  questions             Question[]
+  candidateAssessments  CandidateAssessment[]
+  assignedAccessCodes   AccessCode[]
+}
+
+model Question {
+  id             String     @id @default(uuid()) @db.Uuid
+  assessmentId   String     @db.Uuid
+  questionText   String
+  options        Json
+  correctAnswer  String
+  orderIndex     Int
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  assessment     Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  candidateAnswers CandidateAnswer[]
+
+  @@index([assessmentId])
+}
+
+model CandidateAssessment {
+  id              String            @id @default(uuid()) @db.Uuid
+  candidateId     String            @db.Uuid
+  assessmentId    String            @db.Uuid
+  score           Int               @default(0)
+  startedAt       DateTime          @default(now())
+  completedAt     DateTime?
+  submissionIp    String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  candidate       CandidateProfile  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessment      Assessment        @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
+  answers         CandidateAnswer[]
+
+  @@unique([candidateId, assessmentId])
+  @@index([assessmentId])
+}
+
+model CandidateAnswer {
+  id                      String              @id @default(uuid()) @db.Uuid
+  candidateAssessmentId   String              @db.Uuid
+  questionId              String              @db.Uuid
+  selectedAnswer          String
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+  candidateAssessment     CandidateAssessment @relation(fields: [candidateAssessmentId], references: [id], onDelete: Cascade)
+  question                Question            @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([candidateAssessmentId, questionId])
+  @@index([questionId])
+}
+
+model AuditLog {
+  id          String          @id @default(uuid()) @db.Uuid
+  actorId     String?         @db.Uuid
+  actorRole   Role?
+  actionType  AuditActionType
+  entityType  String
+  entityId    String?
+  metadata    Json?
+  timestamp   DateTime        @default(now())
+  ipAddress   String?
+  userAgent   String?
+  actor       User?           @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([timestamp])
+  @@index([actionType])
+  @@index([entityType, entityId])
+}
+
+model LoginAttempt {
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String
+  userId      String?  @db.Uuid
+  ipAddress   String?
+  userAgent   String?
+  success     Boolean
+  attemptedAt DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email, attemptedAt])
+}
+
+model AccountLock {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @unique @db.Uuid
+  lockedUntil   DateTime
+  failedCount   Int      @default(0)
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([lockedUntil])
+}
+
+model LockdownSession {
+  id                String          @id @default(uuid()) @db.Uuid
+  candidateUserId   String          @db.Uuid
+  assessmentId      String
+  assessmentName    String
+  deviceId          String
+  startedAt         DateTime        @default(now())
+  completedAt       DateTime?
+  lastHeartbeatAt   DateTime        @default(now())
+  promptId          String
+  promptText        String
+  status            String          @default("active")
+  terminationReason String?
+  integrity         Json
+  result            Json?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  candidateUser     User            @relation(fields: [candidateUserId], references: [id], onDelete: Cascade)
+  events            LockdownEvent[]
+
+  @@index([candidateUserId, status])
+  @@index([assessmentId])
+  @@index([lastHeartbeatAt])
+}
+
+model LockdownEvent {
+  id        String          @id @default(uuid()) @db.Uuid
+  sessionId String          @db.Uuid
+  at        DateTime        @default(now())
+  eventType String
+  detail    String
+  severity  String
+  session   LockdownSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, at])
+}

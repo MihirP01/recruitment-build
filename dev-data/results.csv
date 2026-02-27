@@ -1,0 +1,2 @@
+id,assessmentId,candidateId,score,accuracy,integrityScore,status
+res01,incident-report,cand02,82,91,94,Reviewed
