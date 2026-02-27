@@ -165,6 +165,9 @@ export const authOptions: NextAuthOptions = {
               isDevSession: true
             };
           }
+
+          // In CTRL dev-suite mode we do not fall back to database auth.
+          return null;
         }
 
         const user = await prisma.user.findUnique({ where: { email } });

@@ -1,3 +1,5 @@
+import { IS_DEV } from "@/lib/env/isDev";
+
 const DEV_AUTH_SECRET_FALLBACK = "ctrl-dev-suite-local-secret";
 
 export function resolveAuthSecret(): string {
@@ -6,10 +8,9 @@ export function resolveAuthSecret(): string {
     return configured;
   }
 
-  if (process.env.NODE_ENV === "development") {
+  if (IS_DEV) {
     return DEV_AUTH_SECRET_FALLBACK;
   }
 
   throw new Error("Missing NEXTAUTH_SECRET (or AUTH_SECRET) in production.");
 }
-
