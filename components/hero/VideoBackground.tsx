@@ -16,6 +16,9 @@ function mergeClassNames(...parts: Array<string | undefined>): string {
   return parts.filter(Boolean).join(" ");
 }
 
+const HERO_VIDEO_MASK =
+  "radial-gradient(120% 95% at 52% 48%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 38%, rgba(0,0,0,0.52) 68%, rgba(0,0,0,0) 100%), linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.78) 15%, rgba(0,0,0,1) 24%, rgba(0,0,0,1) 76%, rgba(0,0,0,0.78) 85%, rgba(0,0,0,0) 100%)";
+
 export default function VideoBackground({
   srcMp4,
   srcWebm,
@@ -41,7 +44,14 @@ export default function VideoBackground({
         />
       ) : null}
 
-      <motion.div className="absolute -inset-y-[20%] inset-x-0 will-change-transform" style={{ y: mediaY }}>
+      <motion.div
+        className="absolute -inset-y-[20%] inset-x-0 will-change-transform"
+        style={{
+          y: mediaY,
+          maskImage: HERO_VIDEO_MASK,
+          WebkitMaskImage: HERO_VIDEO_MASK
+        }}
+      >
         {hasVideoSource && !videoFailed ? (
           <video
             autoPlay
@@ -53,12 +63,25 @@ export default function VideoBackground({
             poster={poster}
             aria-hidden="true"
             onError={() => setVideoFailed(true)}
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="absolute inset-0 h-full w-full object-cover object-center mix-blend-screen"
+            style={{
+              filter: "var(--hero-video-filter)",
+              opacity: "var(--hero-video-opacity)"
+            }}
           >
             {srcWebm ? <source src={srcWebm} type="video/webm" /> : null}
             {srcMp4 ? <source src={srcMp4} type="video/mp4" /> : null}
           </video>
         ) : null}
+
+        <div
+          className="absolute inset-0 mix-blend-screen"
+          style={{
+            background:
+              "radial-gradient(circle at 58% 42%, rgb(var(--hero-video-accent-rgb) / calc(var(--hero-video-accent-alpha) * 1.25)) 0%, rgb(var(--hero-video-accent-rgb) / var(--hero-video-accent-alpha)) 36%, transparent 72%)"
+          }}
+          aria-hidden="true"
+        />
       </motion.div>
 
       <div

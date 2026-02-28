@@ -4,6 +4,7 @@ import SystemCanvas from "@/components/system/SystemCanvas";
 import Reveal from "@/components/motion/Reveal";
 import TestimonialCarousel from "@/components/home/TestimonialCarousel";
 import FeatureCarousel from "@/components/home/FeatureCarousel";
+import HeroQuoteRotator from "@/components/home/HeroQuoteRotator";
 import HomeToneObserver from "@/components/home/HomeToneObserver";
 import CinematicSection from "@/components/home/CinematicSection";
 import ContinuityGridOverlay from "@/components/home/ContinuityGridOverlay";
@@ -11,6 +12,7 @@ import HeroSigninBlur from "@/components/home/HeroSigninBlur";
 import HeroHashHandler from "@/components/HeroHashHandler";
 import ReturnToTop from "@/components/ReturnToTop";
 import VideoBackground from "@/components/hero/VideoBackground";
+import { CTRL_EXPANSION } from "@/lib/brand";
 
 type Panel = {
   id: "hero" | "about" | "features" | "security" | "intelligence" | "testimonials" | "contact";
@@ -27,6 +29,30 @@ const HERO_VIDEO_MP4 = "/hero/hero-optimized.mp4";
 const HERO_VIDEO_WEBM = undefined;
 const HERO_VIDEO_POSTER = "/hero/hero-poster.jpg";
 const HERO_VIDEO_FALLBACK = "/hero/hero-fallback.jpg";
+
+const HERO_QUOTES = [
+  "Hiring the right candidate starts with the right intelligence.",
+  "Operational recruitment should be evidence-led, reviewable, and defensible.",
+  "The strongest hiring decisions come from structured signals, not assumption.",
+  "Secure recruitment depends on disciplined inputs and accountable review.",
+  "Reliable hiring outcomes come from governed process, not instinct alone.",
+  "Every strong appointment begins with data that can withstand scrutiny.",
+  "Assessment quality determines whether recruitment decisions remain defensible.",
+  "The right candidate is identified through evidence, not speed.",
+  "High-assurance hiring requires structure before it requires scale.",
+  "Recruitment intelligence is only valuable when it is consistent and auditable.",
+  "Better hiring decisions emerge when every stage produces reviewable evidence.",
+  "Control over process is what turns recruitment into trusted selection.",
+  "Candidate evaluation must be repeatable if it is to be credible.",
+  "The strongest recruitment systems reduce ambiguity before decisions are made.",
+  "Good hiring is not guesswork; it is disciplined operational judgment.",
+  "A secure hiring process protects both decision quality and public trust.",
+  "Institutional recruitment works best when evidence arrives in the right order.",
+  "Confidence in hiring comes from traceability, not informal interpretation.",
+  "The most dependable candidate decisions are built on structured assessment signals.",
+  "Recruitment integrity is measured by how well every decision can be explained.",
+  "The right intelligence turns candidate review into a controlled decision process."
+];
 
 const FEATURES = [
   {
@@ -193,7 +219,11 @@ export default function HomePage() {
               <HeroSigninBlur />
             </>
           ) : null}
-          <div className="relative z-10 mx-auto grid h-full w-full max-w-7xl grid-cols-1 gap-8 px-6 pb-8 pt-6 md:px-12 md:pb-10 md:pt-8 lg:grid-cols-[3fr_2fr] lg:items-center lg:gap-16">
+          <div
+            className={`relative z-10 mx-auto grid h-auto w-full max-w-7xl grid-cols-1 gap-8 px-6 pb-8 pt-6 md:h-full md:px-12 md:pb-10 md:pt-8 ${
+              panel.id === "hero" ? "lg:grid-cols-1 lg:items-center" : "lg:grid-cols-[3fr_2fr] lg:items-center lg:gap-16"
+            }`}
+          >
             <div className="order-1 space-y-6">
               {panel.id === "hero" ? (
                 <Reveal delay={0}>
@@ -203,11 +233,11 @@ export default function HomePage() {
                       alt="CTRL logo"
                       width={176}
                       height={70}
-                      className="h-9 w-auto"
+                      className="brand-asset h-9 w-auto"
                       priority
                     />
                     <span className="hidden text-xs uppercase tracking-[0.22em] text-[var(--color-text-muted)] md:inline">
-                      Control Room Talent, Recruitment and Logic
+                      {CTRL_EXPANSION}
                     </span>
                   </div>
                 </Reveal>
@@ -215,17 +245,25 @@ export default function HomePage() {
               <Reveal delay={0}>
                 <p className="section-label text-[var(--color-text-muted)]">{panel.label}</p>
               </Reveal>
-              <Reveal delay={0.05}>
-                <h1 className="max-w-[820px] text-4xl font-semibold leading-[1.08] text-[var(--color-text-primary)] md:text-5xl lg:text-6xl">
-                  {panel.title}
-                </h1>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <p className="max-w-[560px] text-base leading-relaxed text-[var(--color-text-muted)]">{panel.paragraph}</p>
-              </Reveal>
+              {panel.id === "hero" ? (
+                <Reveal delay={0.05}>
+                  <HeroQuoteRotator quotes={HERO_QUOTES} />
+                </Reveal>
+              ) : (
+                <>
+                  <Reveal delay={0.05}>
+                    <h1 className="max-w-[820px] text-4xl font-semibold leading-[1.08] text-[var(--color-text-primary)] md:text-5xl lg:text-6xl">
+                      {panel.title}
+                    </h1>
+                  </Reveal>
+                  <Reveal delay={0.1}>
+                    <p className="max-w-[560px] text-base leading-relaxed text-[var(--color-text-muted)]">{panel.paragraph}</p>
+                  </Reveal>
+                </>
+              )}
 
-              <Reveal delay={0.15}>
-                {panel.variant === "features" ? (
+              <Reveal delay={panel.id === "hero" ? 0.22 : 0.15}>
+                {panel.id === "hero" ? null : panel.variant === "features" ? (
                   <>
                     <FeatureCarousel features={FEATURES} className="md:hidden" />
                     <div className="hidden max-w-[740px] grid-cols-2 gap-3 md:grid">
@@ -278,7 +316,7 @@ export default function HomePage() {
               </Reveal>
 
               {panel.id === "hero" ? (
-                <Reveal delay={0.2}>
+                <Reveal delay={0.28}>
                   <div className="flex flex-wrap items-center gap-3 pt-1">
                     <AuthActionButton
                       mode="signin"
@@ -297,9 +335,11 @@ export default function HomePage() {
               ) : null}
             </div>
 
-            <Reveal delay={0.12} className="order-2 hidden lg:order-2 lg:block">
-              <SystemCanvas focus={panel.focus} />
-            </Reveal>
+            {panel.id === "hero" ? null : (
+              <Reveal delay={0.12} className="order-2 hidden lg:order-2 lg:block">
+                <SystemCanvas focus={panel.focus} />
+              </Reveal>
+            )}
           </div>
         </CinematicSection>
       ))}

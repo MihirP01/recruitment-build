@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Role } from "@prisma/client";
 import { SignOutButton } from "@/components/auth/signout-button";
+import { CTRL_LOCKUP } from "@/lib/brand";
 
 type NavItem = {
   href: string;
@@ -41,7 +42,7 @@ export function DashboardShell({
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">CTRL (Control Room Talent, Recruitment and Logic)</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{CTRL_LOCKUP}</p>
             <h1 className="text-lg font-semibold text-slate-900">{role.replace("_", " ")} Dashboard</h1>
           </div>
           <div className="flex items-center gap-3">

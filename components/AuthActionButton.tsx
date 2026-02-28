@@ -10,7 +10,7 @@ type AuthActionButtonProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href
 };
 
 function fallbackHref(mode: AuthMode) {
-  return mode === "signin" ? "/?auth=signin" : "/?auth=signup";
+  return mode === "signin" ? "/?auth=signin#hero" : "/?auth=signup#hero";
 }
 
 export default function AuthActionButton({ mode, onClick, href, ...props }: AuthActionButtonProps) {

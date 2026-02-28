@@ -6,10 +6,10 @@ export const DEFAULT_CTRL_THEME: CtrlTheme = "ctrl-dark";
 export const CTRL_THEME_STORAGE_KEY = "ctrl-theme";
 
 export const CTRL_THEME_LABELS: Record<CtrlTheme, string> = {
-  "ctrl-dark": "Dark",
-  "ctrl-blue": "Blue",
-  "ctrl-slate": "Slate",
-  "ctrl-light": "Light"
+  "ctrl-dark": "Midnight",
+  "ctrl-blue": "Harbor",
+  "ctrl-slate": "Mist",
+  "ctrl-light": "Porcelain"
 };
 
 export function isCtrlTheme(value: unknown): value is CtrlTheme {
@@ -21,4 +21,3 @@ export function nextCtrlTheme(currentTheme: CtrlTheme): CtrlTheme {
   const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % CTRL_THEMES.length;
   return CTRL_THEMES[nextIndex];
 }
-

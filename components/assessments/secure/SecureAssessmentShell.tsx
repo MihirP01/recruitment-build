@@ -25,7 +25,7 @@ export default function SecureAssessmentShell({
     <div className="h-full overflow-hidden bg-[#0B1220] text-[#E5E7EB]">
       <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-[#020617]/95 backdrop-blur">
         <div className="mx-auto flex h-[72px] max-w-[1400px] items-center gap-3 px-4 md:px-6">
-          <Image src="/brand/ctrl-shield.png" alt="CTRL Shield" width={24} height={28} className="h-7 w-auto" priority />
+          <Image src="/brand/ctrl-shield.png" alt="CTRL Shield" width={24} height={28} className="brand-asset h-7 w-auto" priority />
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.14em] text-[#8FA1B8]">Candidate Portal</p>
             <p className="truncate text-sm font-medium text-[#D7DEEA]">{assessmentName}</p>
@@ -66,4 +66,3 @@ export default function SecureAssessmentShell({
     </div>
   );
 }
-

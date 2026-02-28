@@ -18,7 +18,7 @@ export default function ThemeCycleButton({ compact = false }: ThemeCycleButtonPr
       onClick={cycleTheme}
       aria-label={`Switch theme. Current: ${CTRL_THEME_LABELS[theme]}. Next: ${CTRL_THEME_LABELS[nextTheme]}`}
       title={`Theme: ${CTRL_THEME_LABELS[theme]} (next: ${CTRL_THEME_LABELS[nextTheme]})`}
-      className={`inline-flex items-center justify-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text-primary)] transition-colors duration-200 hover:bg-[var(--color-surface-3)] ${
+      className={`inline-flex items-center justify-center gap-2 rounded-md border border-[var(--color-border-strong)] bg-[var(--color-button-ghost-bg)] text-[var(--color-text-primary)] transition-colors duration-200 hover:bg-[var(--color-button-ghost-hover)] ${
         compact ? "h-10 w-10" : "h-10 px-3 text-sm font-medium"
       }`}
     >
@@ -27,4 +27,3 @@ export default function ThemeCycleButton({ compact = false }: ThemeCycleButtonPr
     </button>
   );
 }
-

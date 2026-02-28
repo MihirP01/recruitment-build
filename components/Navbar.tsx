@@ -11,6 +11,7 @@ import NavSectionLinks from "@/components/nav-section-links";
 import MobileMenu from "@/components/MobileMenu";
 import ThemeCycleButton from "@/components/theme/ThemeCycleButton";
 import { signOutToRoot } from "@/lib/auth/clientSignOut";
+import { CTRL_EXPANSION } from "@/lib/brand";
 import { useSignOutPending } from "@/lib/auth/useSignOutPending";
 import { markNavigatingToHero, scrollToHero } from "@/utils/scrollToHero";
 
@@ -101,7 +102,7 @@ export default function Navbar() {
             alt="CTRL Shield"
             width={30}
             height={34}
-            className="h-7 w-auto md:h-8"
+            className="brand-asset h-7 w-auto md:h-8"
             priority
           />
           <Image
@@ -109,15 +110,13 @@ export default function Navbar() {
             alt="CTRL"
             width={110}
             height={70}
-            className="hidden h-6 w-auto sm:block md:h-7"
+            className="brand-asset hidden h-6 w-auto sm:block md:h-7"
             priority
           />
-          <span className="hidden text-xs font-medium text-[#9CA3AF] xl:inline">
-            Control Room Talent, Recruitment and Logic
-          </span>
+          <span className="hidden text-xs font-medium text-[var(--color-text-muted)] xl:inline">{CTRL_EXPANSION}</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 text-sm text-[#9CA3AF] md:flex">
+        <nav className="hidden items-center gap-6 text-sm text-[var(--color-text-muted)] md:flex">
           <NavSectionLinks />
         </nav>
 
@@ -132,7 +131,7 @@ export default function Navbar() {
             <>
               <AuthActionButton
                 mode="signin"
-                className="rounded-md border border-[var(--color-border-strong)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors duration-300 ease-in-out hover:bg-[var(--color-surface-3)]"
+                className="rounded-md border border-[var(--color-border-strong)] bg-[var(--color-button-ghost-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors duration-300 ease-in-out hover:bg-[var(--color-button-ghost-hover)]"
               >
                 Sign In
               </AuthActionButton>
@@ -197,14 +196,14 @@ export default function Navbar() {
           {session?.user ? (
             <Link
               href="/portal"
-              className="rounded-lg border border-[var(--color-border-strong)] bg-transparent px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors duration-300 ease-in-out hover:bg-white/5"
+              className="rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-button-ghost-bg)] px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors duration-300 ease-in-out hover:bg-[var(--color-button-ghost-hover)]"
             >
               {signInLabel}
             </Link>
           ) : (
             <AuthActionButton
               mode="signin"
-              className="rounded-lg border border-[var(--color-border-strong)] bg-transparent px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors duration-300 ease-in-out hover:bg-white/5"
+              className="rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-button-ghost-bg)] px-3.5 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors duration-300 ease-in-out hover:bg-[var(--color-button-ghost-hover)]"
             >
               Sign In
             </AuthActionButton>

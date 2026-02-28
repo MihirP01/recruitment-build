@@ -8,6 +8,7 @@ import PublicSiteFrame from "@/components/PublicSiteFrame";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { plexMono, plexSans } from "@/app/ui/fonts";
 import { authOptions } from "@/lib/auth/auth";
+import { CTRL_LOCKUP } from "@/lib/brand";
 import { inferTenantFromEmail, TenantSlug } from "@/lib/portal/tenant";
 import { CTRL_THEMES, DEFAULT_CTRL_THEME } from "@/lib/theme/constants";
 import "./globals.css";
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "CTRL (Control Room Talent, Recruitment and Logic)",
+  title: CTRL_LOCKUP,
   description: "CTRL secure recruitment and assessment platform",
   icons: {
     icon: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],

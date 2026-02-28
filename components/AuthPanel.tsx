@@ -49,7 +49,6 @@ export default function AuthPanel() {
       if (scrollRoot) {
         scrollRoot.style.scrollSnapType = "none";
         scrollRoot.style.overflowAnchor = "none";
-        scrollRoot.scrollTop = 0;
         scrollRoot.style.overflowY = "hidden";
       }
     }
@@ -95,13 +94,13 @@ export default function AuthPanel() {
             >
               <motion.div
                 className="min-h-0"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -8 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.24, ease: "easeOut" }}
+                initial={shouldReduceMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.18, ease: "easeOut", delay: shouldReduceMotion ? 0 : 0.08 }}
               >
                 <div className="mx-auto w-full max-w-5xl px-6 py-10">
-                  <div className="max-h-[calc(100svh-var(--nav-h)-1.5rem)] overflow-y-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]/80 p-5 backdrop-blur-xl md:p-6">
+                  <div className="max-h-[calc(100dvh-var(--nav-offset)-1.5rem)] overflow-y-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-1)]/80 p-5 backdrop-blur-xl md:p-6">
                     <div className="mb-5 flex items-center justify-between gap-3">
                       <div>
                         <p className="section-label text-[var(--color-text-subtle)]">Secure Access</p>
@@ -120,7 +119,7 @@ export default function AuthPanel() {
 
                     <div className="mt-4 space-y-4">
                       <AuthForm mode={mode} isActive={isOpen} onSuccess={closeAuth} />
-                      <AnimatePresence initial={false}>
+                      <AnimatePresence initial={false} mode="wait">
                         {IS_DEV && mode === "signin" ? (
                           <motion.div
                             key="dev-access-panel"

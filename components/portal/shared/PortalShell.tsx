@@ -216,7 +216,7 @@ export default function PortalShell({
                 />
               </div>
             ) : null}
-            <Image src="/brand/ctrl-shield.png" alt="CTRL Shield" width={24} height={28} className="h-6 w-auto sm:h-7" />
+            <Image src="/brand/ctrl-shield.png" alt="CTRL Shield" width={24} height={28} className="brand-asset h-6 w-auto sm:h-7" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold tracking-wide text-[var(--color-text-primary)]">{portalLabel}</p>
               <p className="truncate text-xs text-[var(--color-text-muted)]">{sectionTitle}</p>

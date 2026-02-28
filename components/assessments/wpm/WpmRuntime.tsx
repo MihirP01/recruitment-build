@@ -453,7 +453,7 @@ export default function WpmRuntime({ candidateId, candidateName }: WpmRuntimePro
       <header className="sticky top-0 z-20 border-b border-white/10 bg-[#020617]">
         <div className="mx-auto flex w-full max-w-[1500px] flex-wrap items-center gap-3 px-4 py-3 md:px-6">
           <div className="flex items-center gap-3">
-            <Image src="/brand/ctrl-lockup.png" alt="CTRL" width={124} height={30} className="h-7 w-auto" priority />
+            <Image src="/brand/ctrl-lockup.png" alt="CTRL" width={124} height={30} className="brand-asset h-7 w-auto" priority />
             <div>
               <p className="text-xs uppercase tracking-[0.14em] text-[#8FA1B8]">Candidate Portal</p>
               <p className="text-sm font-medium text-[#C3CDDA]">Typing Speed Assessment (WPM)</p>

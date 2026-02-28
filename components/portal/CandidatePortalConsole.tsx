@@ -313,7 +313,7 @@ export default function CandidatePortalConsole({
                   />
                 </div>
               ) : null}
-              <Image src="/brand/ctrl-shield.png" alt="CTRL Shield" width={24} height={28} className="h-6 w-auto sm:h-7" />
+              <Image src="/brand/ctrl-shield.png" alt="CTRL Shield" width={24} height={28} className="brand-asset h-6 w-auto sm:h-7" />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold tracking-wide text-[#E5E7EB]">Candidate Portal</p>
                 <p className="hidden text-xs text-[#8FA1B8] md:block">Operational Assessment Console</p>

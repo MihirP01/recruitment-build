@@ -207,9 +207,9 @@ export default function MobileMenu() {
                   alt="CTRL Shield"
                   width={26}
                   height={30}
-                  className="h-7 w-auto"
+                  className="brand-asset h-7 w-auto"
                 />
-                <Image src="/brand/ctrl-name.png" alt="CTRL" width={98} height={56} className="h-6 w-auto" />
+                <Image src="/brand/ctrl-name.png" alt="CTRL" width={98} height={56} className="brand-asset h-6 w-auto" />
               </Link>
               <AnimatedMenuButton
                 open
@@ -227,7 +227,7 @@ export default function MobileMenu() {
                     <a
                       href={`#${link.id}`}
                       onClick={(event) => handleSectionClick(event, link.id)}
-                      className="inline-flex items-center transition-all duration-300 hover:translate-x-1 hover:text-white"
+                      className="inline-flex items-center transition-all duration-300 hover:translate-x-1 hover:text-[var(--color-text-primary)]"
                     >
                       {link.label}
                     </a>

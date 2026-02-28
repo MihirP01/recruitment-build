@@ -104,7 +104,7 @@ export default function CinematicSection({ id, tone, isHero = false, children }:
             }
       }
       transition={TRANSITION}
-      className={`h-[calc(100svh-var(--nav-h))] min-h-[calc(100svh-var(--nav-h))] snap-start border-b border-white/10 bg-[var(--surface-tone)] will-change-transform cursor-pointer [&[data-panel-active='true']]:cursor-default ${
+      className={`h-auto min-h-[calc(100dvh-var(--nav-offset))] snap-start snap-always border-b border-white/10 bg-[var(--surface-tone)] will-change-transform cursor-pointer md:h-[calc(100dvh-var(--nav-offset))] md:min-h-[calc(100dvh-var(--nav-offset))] [&[data-panel-active='true']]:cursor-default ${
         isHero ? "relative overflow-hidden" : "relative"
       }`}
     >

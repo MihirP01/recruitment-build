@@ -43,6 +43,7 @@ export function AuthUIProvider({ children }: PropsWithChildren) {
   });
   const stateRef = useRef(state);
   const pendingOpenTimeoutRef = useRef<number | undefined>(undefined);
+  const hasHandledSearchModeRef = useRef(false);
 
   useEffect(() => {
     stateRef.current = state;
@@ -85,6 +86,11 @@ export function AuthUIProvider({ children }: PropsWithChildren) {
 
       markNavigatingToHero();
       scrollToHero();
+      if (window.location.hash !== "#hero") {
+        const url = new URL(window.location.href);
+        url.hash = "hero";
+        window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+      }
 
       const startedAt = Date.now();
       const waitForHeroAlignment = () => {
@@ -113,6 +119,33 @@ export function AuthUIProvider({ children }: PropsWithChildren) {
   const setMode = useCallback((mode: AuthMode) => {
     setState((current) => ({ ...current, mode }));
   }, []);
+
+  useEffect(() => {
+    if (hasHandledSearchModeRef.current || typeof window === "undefined" || window.location.pathname !== "/") {
+      return;
+    }
+
+    hasHandledSearchModeRef.current = true;
+    const url = new URL(window.location.href);
+    const authMode = url.searchParams.get("auth");
+    if (authMode !== "signin" && authMode !== "signup") {
+      return;
+    }
+
+    const rafId = window.requestAnimationFrame(() => {
+      openAuth(authMode);
+
+      url.searchParams.delete("auth");
+      if (!url.hash) {
+        url.hash = "hero";
+      }
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+    };
+  }, [openAuth]);
 
   const contextValue = useMemo<AuthUIContextValue>(
     () => ({
