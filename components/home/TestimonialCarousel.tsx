@@ -2,15 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Star } from "lucide-react";
 
-type Testimonial = {
+export type TestimonialReview = {
   quote: string;
   name: string;
+  title: string;
   organisation: string;
+  rating: number;
 };
 
 type TestimonialCarouselProps = {
-  testimonials: Testimonial[];
+  testimonials: TestimonialReview[];
   className?: string;
   intervalMs?: number;
 };
@@ -67,15 +70,11 @@ export default function TestimonialCarousel({
   }
 
   return (
-    <div className={mergeClassNames("max-w-[740px]", className)}>
-      <div className="relative h-[236px] overflow-hidden rounded-lg border border-white/10 bg-[#0F172A] md:h-[220px]">
+    <div className={mergeClassNames("max-w-[740px] w-full", className)}>
+      <div className="relative min-h-[320px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] md:min-h-[280px]">
         {reducedMotion ? (
           <article className="h-full p-4 md:p-5">
-            <p className="text-sm leading-relaxed text-[#E5E7EB]">{current.quote}</p>
-            <div className="mt-4 text-xs text-[#9CA3AF]">
-              <p className="font-semibold text-[#C3CDDA]">{current.name}</p>
-              <p>{current.organisation}</p>
-            </div>
+            <TestimonialCardBody testimonial={current} />
           </article>
         ) : (
           <AnimatePresence initial={false} mode="wait">
@@ -85,32 +84,55 @@ export default function TestimonialCarousel({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: direction > 0 ? -12 : 12 }}
               transition={{ duration: 0.38, ease: "easeOut" }}
-              className="absolute inset-0 p-4 md:p-5"
+              className="p-4 md:p-5"
             >
-              <p className="text-sm leading-relaxed text-[#E5E7EB]">{current.quote}</p>
-              <div className="mt-4 text-xs text-[#9CA3AF]">
-                <p className="font-semibold text-[#C3CDDA]">{current.name}</p>
-                <p>{current.organisation}</p>
-              </div>
+              <TestimonialCardBody testimonial={current} />
             </motion.article>
           </AnimatePresence>
         )}
       </div>
 
       <div className="mt-3 flex items-center justify-end gap-2" role="tablist" aria-label="Testimonial slides">
-          {testimonials.map((testimonial, dotIndex) => (
-            <button
-              key={`${testimonial.name}-${dotIndex}`}
-              type="button"
-              role="tab"
-              aria-label={`Go to testimonial ${dotIndex + 1}`}
-              aria-selected={dotIndex === index}
-              onClick={() => goTo(dotIndex)}
-              className={`h-2.5 w-2.5 rounded-full border transition-colors duration-200 ${
-                dotIndex === index ? "border-[#8AA4C2] bg-[#8AA4C2]" : "border-white/25 bg-transparent hover:border-white/45"
-              }`}
-            />
-          ))}
+        {testimonials.map((testimonial, dotIndex) => (
+          <button
+            key={`${testimonial.name}-${dotIndex}`}
+            type="button"
+            role="tab"
+            aria-label={`Go to testimonial ${dotIndex + 1}`}
+            aria-selected={dotIndex === index}
+            onClick={() => goTo(dotIndex)}
+            className={`h-2.5 w-2.5 rounded-full border transition-colors duration-200 ${
+              dotIndex === index
+                ? "border-[rgb(var(--color-accent-rgb)/0.9)] bg-[var(--color-accent)]"
+                : "border-[var(--color-border-strong)] bg-transparent hover:border-[rgb(var(--color-accent-rgb)/0.55)]"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TestimonialCardBody({ testimonial }: { testimonial: TestimonialReview }) {
+  return (
+    <div className="flex h-full min-h-full flex-col">
+      <div className="flex items-center gap-1 text-amber-400">
+        {Array.from({ length: 5 }).map((_, starIndex) => (
+          <Star
+            key={`${testimonial.name}-${starIndex}`}
+            className="h-4 w-4"
+            fill={starIndex < testimonial.rating ? "currentColor" : "transparent"}
+          />
+        ))}
+        <span className="ml-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+          {testimonial.rating.toFixed(1)} / 5
+        </span>
+      </div>
+      <p className="mt-4 text-sm leading-relaxed text-[var(--color-text-primary)] md:text-[15px]">{testimonial.quote}</p>
+      <div className="mt-auto border-t border-[var(--color-border)] pt-4 text-xs text-[var(--color-text-muted)]">
+        <p className="font-semibold text-[var(--color-text-secondary)]">{testimonial.name}</p>
+        <p className="mt-1">{testimonial.title}</p>
+        <p>{testimonial.organisation}</p>
       </div>
     </div>
   );

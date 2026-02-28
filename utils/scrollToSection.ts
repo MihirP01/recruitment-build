@@ -10,6 +10,17 @@ function shouldReduceMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function resolveScrollTop(scrollRoot: HTMLElement, target: HTMLElement, sectionId: string): number {
+  if (sectionId === "hero") {
+    return 0;
+  }
+
+  const rootRect = scrollRoot.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+
+  return Math.max(0, scrollRoot.scrollTop + targetRect.top - rootRect.top);
+}
+
 export function scrollToSection(sectionId: string, updateHash = true) {
   const target = document.getElementById(sectionId);
   if (!target) {
@@ -36,13 +47,16 @@ export function scrollToSection(sectionId: string, updateHash = true) {
   scrollRoot.style.scrollSnapType = "none";
 
   scrollRoot.scrollTo({
-    top: Math.max(0, target.offsetTop),
+    top: resolveScrollTop(scrollRoot, target, sectionId),
     behavior: shouldReduceMotion() ? "auto" : "smooth"
   });
 
   snapRestoreTimeoutId = window.setTimeout(() => {
     scrollRoot.style.scrollSnapType = previousSnapType;
-    target.scrollIntoView({ behavior: "auto", block: "start" });
+    scrollRoot.scrollTo({
+      top: resolveScrollTop(scrollRoot, target, sectionId),
+      behavior: "auto"
+    });
   }, shouldReduceMotion() ? 0 : 700);
 
   if (updateHash) {
