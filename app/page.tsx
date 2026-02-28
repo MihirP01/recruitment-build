@@ -138,12 +138,6 @@ const INTELLIGENCE_METRICS = [
   { label: "Client Ready", value: "11" }
 ];
 
-const CONTACT_STEPS = [
-  "Initial requirements review and operating model fit.",
-  "Environment, assurance, and deployment constraints captured.",
-  "Guided platform walkthrough aligned to your recruitment process."
-];
-
 const PANELS: Panel[] = [
   {
     id: "hero",
