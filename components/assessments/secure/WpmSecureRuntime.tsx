@@ -12,8 +12,9 @@ import { calculateCadenceMetrics, calculateWpmScore } from "@/lib/assessments/wp
 
 const HEARTBEAT_MS = 8_000;
 const DEFAULT_DURATION_SEC = 60;
+const WARMUP_DURATION_SEC = 5;
 
-type Phase = "boot" | "ready" | "active" | "completed" | "terminated";
+type Phase = "boot" | "ready" | "warmup" | "active" | "completed" | "terminated";
 
 type LaunchBootstrap = {
   sessionId: string;
@@ -89,6 +90,7 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
 
   const [phase, setPhase] = useState<Phase>("boot");
   const [bootstrap, setBootstrap] = useState<LaunchBootstrap | null>(null);
+  const [warmupLeft, setWarmupLeft] = useState(WARMUP_DURATION_SEC);
   const [timeLeft, setTimeLeft] = useState(DEFAULT_DURATION_SEC);
   const [typedText, setTypedText] = useState("");
   const [backspaces, setBackspaces] = useState(0);
@@ -119,8 +121,9 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
     return fromSignals + (multiTabDetected ? 1 : 0) + (suspiciousBurstDetected ? 1 : 0);
   }, [focusLossCount, fullscreenExitCount, multiTabDetected, pasteAttempts, suspiciousBurstDetected]);
 
+  const secureSessionActive = phase === "warmup" || phase === "active";
   const running = phase === "active";
-  const refreshGuardActive = phase === "ready" || phase === "active";
+  const refreshGuardActive = phase === "ready" || phase === "warmup" || phase === "active";
 
   const postEvent = useCallback(
     async (eventType: string, detail: string, severity: "info" | "warning" | "critical") => {
@@ -208,6 +211,7 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
     }
 
     setBootstrap(launch);
+    setWarmupLeft(WARMUP_DURATION_SEC);
     setTimeLeft(launch.durationSec || DEFAULT_DURATION_SEC);
     setPhase("ready");
     addAudit("SYSTEM", "Secure runtime loaded");
@@ -255,6 +259,26 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
       }
     };
   }, [bootstrap, completeWithTermination, running, showWarning, timeLeft]);
+
+  useEffect(() => {
+    if (phase !== "warmup") {
+      return;
+    }
+
+    if (warmupLeft <= 0) {
+      setPhase("active");
+      addAudit("ACTION", "Secure mode active");
+      void postEvent("SECURE_MODE_ACTIVE", "Secure mode active after warmup countdown.", "info");
+      inputRef.current?.focus();
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      setWarmupLeft((previous) => previous - 1);
+    }, 1000);
+
+    return () => window.clearTimeout(timerId);
+  }, [addAudit, phase, postEvent, warmupLeft]);
 
   useEffect(() => {
     if (!running) {
@@ -457,7 +481,7 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("keydown", onKeydown);
     };
-  }, [addAudit, bootstrap, completeWithTermination, postEvent, running, showWarning]);
+  }, [addAudit, bootstrap, completeWithTermination, postEvent, secureSessionActive, showWarning]);
 
   useEffect(() => {
     if (!refreshGuardActive) {
@@ -489,18 +513,18 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
   }, [refreshGuardActive, showWarning]);
 
   useEffect(() => {
-    if (!running) return;
+    if (!secureSessionActive) return;
     if (focusLossCount >= LOCKDOWN_MAX_FOCUS_LOSS) {
       void completeWithTermination("Integrity Violation: focus lost threshold exceeded.");
     }
-  }, [completeWithTermination, focusLossCount, running]);
+  }, [completeWithTermination, focusLossCount, secureSessionActive]);
 
   useEffect(() => {
-    if (!running) return;
+    if (!secureSessionActive) return;
     if (fullscreenExitCount >= LOCKDOWN_MAX_FULLSCREEN_EXITS) {
       void completeWithTermination("Integrity Violation: fullscreen exit threshold exceeded.");
     }
-  }, [completeWithTermination, fullscreenExitCount, running]);
+  }, [completeWithTermination, fullscreenExitCount, secureSessionActive]);
 
   const activateSecureMode = useCallback(async () => {
     if (!bootstrap) return;
@@ -541,9 +565,10 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
       })
     );
 
-    setPhase("active");
-    addAudit("ACTION", "Secure mode active");
-    inputRef.current?.focus();
+    setWarmupLeft(WARMUP_DURATION_SEC);
+    setPhase("warmup");
+    addAudit("ACTION", `Warmup countdown initiated (${WARMUP_DURATION_SEC}s)`);
+    await postEvent("WARMUP_STARTED", `Warmup countdown initiated (${WARMUP_DURATION_SEC}s).`, "info");
   }, [addAudit, bootstrap, postEvent, showWarning]);
 
   const handleExit = useCallback(() => {
@@ -572,6 +597,14 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
   const durationSec = bootstrap?.durationSec ?? DEFAULT_DURATION_SEC;
   const elapsedSec = durationSec - timeLeft;
   const progressPercent = clamp((elapsedSec / durationSec) * 100, 0, 100);
+  const progressLabel =
+    phase === "completed" || phase === "terminated"
+      ? "0s"
+      : phase === "warmup"
+        ? `${Math.max(0, Math.ceil(warmupLeft))}s`
+      : phase === "active"
+        ? `${Math.max(0, Math.ceil(timeLeft))}s`
+        : `${durationSec}s`;
   const liveMetrics = calculateWpmScore({
     promptText,
     typedText,
@@ -579,7 +612,12 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
     backspaces
   });
 
-  const timerLabel = phase === "active" ? `Timer ${formatClock(timeLeft)}` : `Timer ${formatClock(durationSec)}`;
+  const timerLabel =
+    phase === "warmup"
+      ? `Starting in ${formatClock(warmupLeft)}`
+      : phase === "active"
+        ? `Timer ${formatClock(timeLeft)}`
+        : `Timer ${formatClock(durationSec)}`;
 
   return (
     <div className="h-full overflow-hidden bg-[#0B1220] text-[#E5E7EB]">
@@ -686,7 +724,7 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
             </section>
           ) : null}
 
-          {phase === "active" || phase === "completed" ? (
+          {phase === "warmup" || phase === "active" || phase === "completed" ? (
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
               <div className="space-y-4">
                 <section className="rounded-xl border border-white/10 bg-[#0B1220] p-4">
@@ -699,71 +737,101 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
                 </section>
 
                 <section className="rounded-xl border border-white/10 bg-[#0B1220] p-4">
-                  <PromptRenderer
-                    promptText={promptText}
-                    typedText={typedText}
-                    onCopyAttempt={() => {
-                      void postEvent("COPY_ATTEMPT", "Copy attempt blocked from prompt text.", "warning");
-                      addAudit("INTEGRITY", "Copy attempt blocked");
-                    }}
-                    onCutAttempt={() => {
-                      void postEvent("CUT_ATTEMPT", "Cut attempt blocked from prompt text.", "warning");
-                      addAudit("INTEGRITY", "Cut attempt blocked");
-                    }}
-                  />
+                  <div className="relative">
+                    <div className={phase === "warmup" ? "pointer-events-none select-none blur-[6px]" : undefined}>
+                      <PromptRenderer
+                        promptText={promptText}
+                        typedText={typedText}
+                        onCopyAttempt={() => {
+                          void postEvent("COPY_ATTEMPT", "Copy attempt blocked from prompt text.", "warning");
+                          addAudit("INTEGRITY", "Copy attempt blocked");
+                        }}
+                        onCutAttempt={() => {
+                          void postEvent("CUT_ATTEMPT", "Cut attempt blocked from prompt text.", "warning");
+                          addAudit("INTEGRITY", "Cut attempt blocked");
+                        }}
+                      />
+                    </div>
+
+                    {phase === "warmup" ? (
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-[#020617]/35">
+                        <div className="rounded-xl border border-[rgb(var(--role-accent-rgb)/0.4)] bg-[#08172C]/95 px-6 py-5 text-center shadow-2xl backdrop-blur-md">
+                          <p className="text-xs uppercase tracking-[0.14em] text-[#8FA1B8]">Secure Countdown</p>
+                          <p className="mt-2 text-4xl font-semibold text-[#E5E7EB]">{Math.max(0, Math.ceil(warmupLeft))}</p>
+                          <p className="mt-2 text-sm text-[#C3CDDA]">Typing unlocks when the countdown completes.</p>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
 
                   <label className="mt-3 block text-xs uppercase tracking-[0.12em] text-[#8FA1B8]" htmlFor="secure-typing-input">
                     Secure Typing Input
                   </label>
-                  <textarea
-                    id="secure-typing-input"
-                    ref={inputRef}
-                    value={typedText}
-                    onChange={(event) => {
-                      if (!running) return;
-                      const nextValue = event.target.value;
-                      const jump = nextValue.length - typedText.length;
-                      if (jump > 10 && !suspiciousBurstDetected) {
-                        setSuspiciousBurstDetected(true);
-                        addAudit("INTEGRITY", "Suspicious input burst detected");
-                        void postEvent("SUSPICIOUS_BURST", "Input length jumped by >10 chars in a single event.", "warning");
+                  <div className="relative mt-2">
+                    <textarea
+                      id="secure-typing-input"
+                      ref={inputRef}
+                      value={typedText}
+                      onChange={(event) => {
+                        if (!running) return;
+                        const nextValue = event.target.value;
+                        const jump = nextValue.length - typedText.length;
+                        if (jump > 10 && !suspiciousBurstDetected) {
+                          setSuspiciousBurstDetected(true);
+                          addAudit("INTEGRITY", "Suspicious input burst detected");
+                          void postEvent("SUSPICIOUS_BURST", "Input length jumped by >10 chars in a single event.", "warning");
+                        }
+                        setTypedText(nextValue);
+                      }}
+                      onKeyDown={(event) => {
+                        if (!running) return;
+                        const now = performance.now();
+                        if (lastKeydownAtRef.current !== null) {
+                          keyIntervalsRef.current.push(now - lastKeydownAtRef.current);
+                        }
+                        lastKeydownAtRef.current = now;
+                        if (event.key === "Backspace") {
+                          setBackspaces((previous) => previous + 1);
+                        }
+                      }}
+                      onPaste={(event) => {
+                        event.preventDefault();
+                        setPasteAttempts((previous) => previous + 1);
+                        addAudit("INTEGRITY", "Paste blocked in secure input");
+                        void postEvent("PASTE_BLOCKED", "Paste blocked in secure typing input.", "warning");
+                        showWarning("Paste blocked.");
+                      }}
+                      disabled={!running}
+                      spellCheck={false}
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      rows={6}
+                      className={`w-full resize-none rounded-lg border border-white/10 bg-[#08172C] p-3 text-sm text-[#E5E7EB] placeholder:text-[#64748B] focus:border-[#5B7EA6] focus:outline-none focus:ring-2 focus:ring-[#5B7EA6]/30 disabled:cursor-not-allowed disabled:opacity-70 ${
+                        phase === "warmup" ? "pointer-events-none blur-[5px]" : ""
+                      }`}
+                      placeholder={
+                        running
+                          ? "Type the prompt text exactly as shown..."
+                          : phase === "warmup"
+                            ? `Typing unlocks in ${Math.max(0, Math.ceil(warmupLeft))}s`
+                            : "Assessment input disabled"
                       }
-                      setTypedText(nextValue);
-                    }}
-                    onKeyDown={(event) => {
-                      if (!running) return;
-                      const now = performance.now();
-                      if (lastKeydownAtRef.current !== null) {
-                        keyIntervalsRef.current.push(now - lastKeydownAtRef.current);
-                      }
-                      lastKeydownAtRef.current = now;
-                      if (event.key === "Backspace") {
-                        setBackspaces((previous) => previous + 1);
-                      }
-                    }}
-                    onPaste={(event) => {
-                      event.preventDefault();
-                      setPasteAttempts((previous) => previous + 1);
-                      addAudit("INTEGRITY", "Paste blocked in secure input");
-                      void postEvent("PASTE_BLOCKED", "Paste blocked in secure typing input.", "warning");
-                      showWarning("Paste blocked.");
-                    }}
-                    disabled={!running}
-                    spellCheck={false}
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    rows={6}
-                    className="mt-2 w-full resize-none rounded-lg border border-white/10 bg-[#08172C] p-3 text-sm text-[#E5E7EB] placeholder:text-[#64748B] focus:border-[#5B7EA6] focus:outline-none focus:ring-2 focus:ring-[#5B7EA6]/30 disabled:cursor-not-allowed disabled:opacity-70"
-                    placeholder={running ? "Type the prompt text exactly as shown..." : "Assessment input disabled"}
-                  />
+                    />
+                    {phase === "warmup" ? (
+                      <div className="pointer-events-none absolute inset-0 rounded-lg bg-[#020617]/18" />
+                    ) : null}
+                  </div>
 
                   <div className="mt-4 rounded-lg border border-white/10 bg-[#08172C] p-3">
                     <div className="mb-2 flex items-center justify-between text-xs text-[#8FA1B8]">
                       <span>Progress</span>
-                      <span>{Math.round(progressPercent)}%</span>
+                      <span>{progressLabel}</span>
                     </div>
                     <div className="h-2 rounded-full bg-[#0B1220]">
-                      <div className="h-full rounded-full bg-[#5B7EA6] transition-[width] duration-300" style={{ width: `${progressPercent}%` }} />
+                      <div
+                        className="h-full rounded-full bg-[#5B7EA6] transition-[width] duration-1000 ease-linear"
+                        style={{ width: `${progressPercent}%` }}
+                      />
                     </div>
                     <div className="mt-3 grid gap-2 text-xs text-[#C3CDDA] sm:grid-cols-4">
                       <p>Gross WPM: {liveMetrics.grossWpm}</p>

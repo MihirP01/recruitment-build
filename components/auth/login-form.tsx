@@ -1,16 +1,16 @@
 "use client";
 
-import { Role } from "@prisma/client";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import { type AuthRole } from "@/lib/auth/role";
 import { rolePathPrefix } from "@/lib/auth/roles";
 
 type LoginFormProps = {
-  role: Role;
+  role: AuthRole;
 };
 
-function roleDashboard(role: Role): string {
+function roleDashboard(role: AuthRole): string {
   return rolePathPrefix(role);
 }
 

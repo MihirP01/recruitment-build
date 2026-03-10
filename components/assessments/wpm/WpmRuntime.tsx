@@ -394,6 +394,8 @@ export default function WpmRuntime({ candidateId, candidateName }: WpmRuntimePro
 
   const elapsedSec = TEST_DURATION_SEC - timeLeft;
   const progressPercent = Math.min(100, (elapsedSec / TEST_DURATION_SEC) * 100);
+  const progressLabel =
+    phase === "completed" ? "0s" : phase === "active" ? `${Math.max(0, Math.ceil(timeLeft))}s` : `${TEST_DURATION_SEC}s`;
   const liveMetrics = useMemo(
     () =>
       calculateWpmScore({
@@ -607,11 +609,11 @@ export default function WpmRuntime({ candidateId, candidateName }: WpmRuntimePro
               <div className="rounded-lg border border-white/10 bg-[#08172C] p-3">
                 <div className="mb-2 flex items-center justify-between text-xs text-[#8FA1B8]">
                   <span>Progress</span>
-                  <span>{Math.round(progressPercent)}%</span>
+                  <span>{progressLabel}</span>
                 </div>
                 <div className="h-2 rounded-full bg-[#0B1220]">
                   <div
-                    className="h-full rounded-full bg-[#5B7EA6] transition-[width] duration-300"
+                    className="h-full rounded-full bg-[#5B7EA6] transition-[width] duration-1000 ease-linear"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>

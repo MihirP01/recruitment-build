@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { Role } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
+import { AUTH_ROLE, type AuthRole } from "@/lib/auth/role";
 import { signOutToRoot } from "@/lib/auth/clientSignOut";
 import { rolePathPrefix } from "@/lib/auth/roles";
 import { useSignOutPending } from "@/lib/auth/useSignOutPending";
 
-function portalPath(role: Role): string {
+function portalPath(role: AuthRole): string {
   return rolePathPrefix(role);
 }
 
-function portalLabel(role: Role): string {
-  if (role === Role.CANDIDATE) return "Candidate Portal";
-  if (role === Role.CLIENT) return "Client Portal";
+function portalLabel(role: AuthRole): string {
+  if (role === AUTH_ROLE.CANDIDATE) return "Candidate Portal";
+  if (role === AUTH_ROLE.CLIENT) return "Client Portal";
   return "Admin Portal";
 }
 
@@ -82,11 +82,11 @@ export function LandingAuthMenu() {
         <div className="absolute right-0 mt-2 w-56 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
           <p className="px-2 py-1 text-xs text-slate-500">{session.user.email}</p>
           <Link
-            href={portalPath(session.user.role)}
+            href={portalPath(session.user.role as AuthRole)}
             className="block rounded-md px-2 py-2 text-sm text-slate-700 hover:bg-slate-100"
             onClick={() => setOpen(false)}
           >
-            {portalLabel(session.user.role)}
+            {portalLabel(session.user.role as AuthRole)}
           </Link>
           <a
             href="/logout"

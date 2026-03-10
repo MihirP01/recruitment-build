@@ -1,12 +1,12 @@
 "use client";
 
-import { Role } from "@prisma/client";
 import { signIn } from "next-auth/react";
+import { type AuthRole } from "@/lib/auth/role";
 
 export type DevAccessRole = "admin" | "client" | "candidate";
 
 type DevAccessPayload = {
-  role?: Role;
+  role?: AuthRole;
   email?: string;
   password?: string;
   error?: string;
@@ -40,4 +40,3 @@ export async function signInWithDevAccessRole(role: DevAccessRole): Promise<{ ok
 
   return { ok: true };
 }
-

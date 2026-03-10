@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Role } from "@prisma/client";
 import { MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -11,13 +10,14 @@ import NavSectionLinks from "@/components/nav-section-links";
 import MobileMenu from "@/components/MobileMenu";
 import ThemeCycleButton from "@/components/theme/ThemeCycleButton";
 import { signOutToRoot } from "@/lib/auth/clientSignOut";
+import { AUTH_ROLE, type AuthRole } from "@/lib/auth/role";
 import { CTRL_EXPANSION } from "@/lib/brand";
 import { useSignOutPending } from "@/lib/auth/useSignOutPending";
 import { markNavigatingToHero, scrollToHero } from "@/utils/scrollToHero";
 
-function portalLabel(role: Role): string {
-  if (role === Role.CANDIDATE) return "Candidate Portal";
-  if (role === Role.CLIENT) return "Client Portal";
+function portalLabel(role: string): string {
+  if (role === AUTH_ROLE.CANDIDATE) return "Candidate Portal";
+  if (role === AUTH_ROLE.CLIENT) return "Client Portal";
   return "Admin Portal";
 }
 

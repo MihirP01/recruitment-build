@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 
 type CinematicSectionProps = {
@@ -43,15 +43,12 @@ export default function CinematicSection({ id, tone, isHero = false, children }:
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement | null>(null);
   const scrollContainerRef = useRef<HTMLElement | null>(null);
-  const touchInputRef = useRef<boolean | null>(null);
+  const [isTouchInput, setIsTouchInput] = useState(false);
 
-  if (typeof document !== "undefined" && !scrollContainerRef.current) {
+  useEffect(() => {
     scrollContainerRef.current = document.getElementById("app-scroll");
-  }
-
-  if (touchInputRef.current === null) {
-    touchInputRef.current = isTouchInputDevice();
-  }
+    setIsTouchInput(isTouchInputDevice());
+  }, []);
 
   const { scrollYProgress } = useScroll({
     container: scrollContainerRef,
@@ -71,7 +68,7 @@ export default function CinematicSection({ id, tone, isHero = false, children }:
       data-tone={tone}
       data-panel="true"
       onClick={(event) => {
-        if (touchInputRef.current) {
+        if (isTouchInput) {
           return;
         }
 

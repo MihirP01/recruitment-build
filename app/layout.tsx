@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Role } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import Script from "next/script";
 import { AuthProvider } from "@/components/auth/providers";
@@ -8,6 +7,7 @@ import PublicSiteFrame from "@/components/PublicSiteFrame";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { plexMono, plexSans } from "@/app/ui/fonts";
 import { authOptions } from "@/lib/auth/auth";
+import { AUTH_ROLE, type AuthRole } from "@/lib/auth/role";
 import { CTRL_LOCKUP } from "@/lib/brand";
 import { inferTenantFromEmail, TenantSlug } from "@/lib/portal/tenant";
 import { CTRL_THEMES, DEFAULT_CTRL_THEME } from "@/lib/theme/constants";
@@ -28,12 +28,12 @@ export const metadata: Metadata = {
 
 type UiRole = "candidate" | "client" | "admin";
 
-function resolveUiRole(role?: Role): UiRole {
-  if (role === Role.CLIENT) {
+function resolveUiRole(role?: string): UiRole {
+  if (role === AUTH_ROLE.CLIENT) {
     return "client";
   }
 
-  if (role === Role.SUPER_ADMIN || role === Role.RECRUITER) {
+  if (role === AUTH_ROLE.SUPER_ADMIN || role === AUTH_ROLE.RECRUITER) {
     return "admin";
   }
 
@@ -49,7 +49,7 @@ function resolveTenant(email?: string | null): TenantSlug {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-  const uiRole = resolveUiRole(session?.user?.role);
+  const uiRole = resolveUiRole(session?.user?.role as AuthRole | undefined);
   const tenant = resolveTenant(session?.user?.email);
   const themeBootstrapScript = `(() => {
     try {

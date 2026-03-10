@@ -1,15 +1,23 @@
-import { AccountLock, AuditActionType, User } from "@prisma/client";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { authenticateDevCredentials } from "@/lib/data";
+import type { Role } from "@prisma/client";
 import { IS_DEV } from "@/lib/env/isDev";
-import { prisma } from "@/lib/db/prisma";
+import { type AuthRole } from "@/lib/auth/role";
 import { resolveAuthSecret } from "@/lib/auth/secret";
-import { writeAuditLog } from "@/lib/services/audit";
-import { verifyPassword } from "@/lib/security/password";
 import { loginSchema } from "@/lib/validation/auth";
 
-type LockInfo = Pick<AccountLock, "failedCount" | "lockedUntil">;
+type LockInfo = {
+  failedCount: number;
+  lockedUntil: Date;
+};
+
+type AuthUserRecord = {
+  id: string;
+  email: string;
+  role: AuthRole;
+  passwordHash: string;
+  deletedAt: Date | null;
+};
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_MINUTES = 30;
@@ -47,12 +55,44 @@ if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
   process.env.NEXTAUTH_SECRET = AUTH_SECRET;
 }
 
+async function getPrisma() {
+  const { prisma } = await import("@/lib/db/prisma");
+  return prisma;
+}
+
+async function getAuditService() {
+  return import("@/lib/services/audit");
+}
+
+async function getPrismaEnums() {
+  const { AuditActionType } = await import("@prisma/client");
+  return { AuditActionType };
+}
+
+async function getPasswordService() {
+  return import("@/lib/security/password");
+}
+
+async function getDevDataStore() {
+  return import("@/lib/dev/csvStore");
+}
+
 async function isUserLocked(userId: string): Promise<boolean> {
+  const prisma = await getPrisma();
   const lock = await prisma.accountLock.findUnique({ where: { userId } });
   return !!lock && lock.lockedUntil > new Date();
 }
 
-async function recordLoginFailure(user: User | null, email: string, ipAddress?: string, userAgent?: string): Promise<void> {
+async function recordLoginFailure(
+  user: Pick<AuthUserRecord, "id" | "role"> | null,
+  email: string,
+  ipAddress?: string,
+  userAgent?: string
+): Promise<void> {
+  const prisma = await getPrisma();
+  const { writeAuditLog } = await getAuditService();
+  const { AuditActionType } = await getPrismaEnums();
+
   if (user) {
     const existingLock: LockInfo | null = await prisma.accountLock.findUnique({
       where: { userId: user.id },
@@ -98,7 +138,11 @@ async function recordLoginFailure(user: User | null, email: string, ipAddress?: 
   });
 }
 
-async function recordLoginSuccess(user: User, ipAddress?: string, userAgent?: string): Promise<void> {
+async function recordLoginSuccess(user: AuthUserRecord, ipAddress?: string, userAgent?: string): Promise<void> {
+  const prisma = await getPrisma();
+  const { writeAuditLog } = await getAuditService();
+  const { AuditActionType } = await getPrismaEnums();
+
   await prisma.accountLock.deleteMany({ where: { userId: user.id } });
 
   await prisma.loginAttempt.create({
@@ -152,10 +196,11 @@ export const authOptions: NextAuthOptions = {
         const { email, password, role } = parsed.data;
 
         if (IS_DEV) {
+          const { authenticateDevCredentials } = await getDevDataStore();
           const devUser = await authenticateDevCredentials({
             email,
             password,
-            role
+            role: role as Role | undefined
           });
           if (devUser) {
             return {
@@ -170,7 +215,9 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const prisma = await getPrisma();
+        const { verifyPassword } = await getPasswordService();
+        const user = (await prisma.user.findUnique({ where: { email } })) as AuthUserRecord | null;
         const ipAddress = (req?.headers?.["x-forwarded-for"] as string)?.split(",")[0]?.trim() ?? "unknown";
         const userAgent = (req?.headers?.["user-agent"] as string) ?? "unknown";
 
