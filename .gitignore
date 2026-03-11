@@ -17,3 +17,5 @@ dist/
 
 dev-data/audit-log.ndjson
 vercel.env.template
+.agents/
+skills-lock.json

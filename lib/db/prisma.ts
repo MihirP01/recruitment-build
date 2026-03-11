@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { IS_DEV } from "@/lib/env/isDev";
+import { HAS_DATABASE } from "@/lib/env/database";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -15,16 +15,16 @@ function createPrismaClient() {
 function createDisabledPrismaClient(): PrismaClient {
   const handler: ProxyHandler<object> = {
     get() {
-      throw new Error("Prisma is disabled in CTRL dev-suite mode.");
+      throw new Error("Prisma is unavailable because DATABASE_URL is not configured.");
     }
   };
 
   return new Proxy({}, handler) as PrismaClient;
 }
 
-const prismaClient = IS_DEV ? undefined : (global.prisma ?? createPrismaClient());
+const prismaClient = HAS_DATABASE ? (global.prisma ?? createPrismaClient()) : undefined;
 
-if (!IS_DEV && process.env.NODE_ENV !== "production") {
+if (HAS_DATABASE && process.env.NODE_ENV !== "production") {
   global.prisma = prismaClient;
 }
 

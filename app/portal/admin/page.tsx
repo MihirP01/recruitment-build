@@ -1,6 +1,6 @@
 import ResetDevDataButton from "@/components/dev/ResetDevDataButton";
 import PortalShell, { PortalNavItem } from "@/components/portal/shared/PortalShell";
-import { getAdmins, getAssessments, getCandidates, getClients, getResults } from "@/lib/data";
+import { DATA_SOURCE, getAdmins, getAssessments, getCandidates, getClients, getResults } from "@/lib/data";
 import { IS_DEV } from "@/lib/env/isDev";
 import { getAdminPortalContext } from "@/lib/portal/admin-context";
 
@@ -67,7 +67,7 @@ export default async function PortalAdminPage() {
       navItems={navItems}
       activeNav="orgs"
     >
-      {IS_DEV ? <ResetDevDataButton /> : null}
+      {IS_DEV && DATA_SOURCE === "csv-dev" ? <ResetDevDataButton /> : null}
 
       <section id="orgs" className="rounded-xl border bg-[#0B1220] p-4" style={{ borderColor: "rgb(var(--tenant-accent-rgb) / 0.24)" }}>
         <p className="text-xs uppercase tracking-[0.14em] text-[#8FA1B8]">Organisation List</p>
