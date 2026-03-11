@@ -10,7 +10,7 @@ import NavSectionLinks from "@/components/nav-section-links";
 import MobileMenu from "@/components/MobileMenu";
 import ThemeCycleButton from "@/components/theme/ThemeCycleButton";
 import { signOutToRoot } from "@/lib/auth/clientSignOut";
-import { AUTH_ROLE, type AuthRole } from "@/lib/auth/role";
+import { AUTH_ROLE } from "@/lib/auth/role";
 import { CTRL_EXPANSION } from "@/lib/brand";
 import { useSignOutPending } from "@/lib/auth/useSignOutPending";
 import { markNavigatingToHero, scrollToHero } from "@/utils/scrollToHero";

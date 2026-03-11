@@ -481,7 +481,7 @@ export default function WpmSecureRuntime({ assessmentId, assessmentName, candida
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("keydown", onKeydown);
     };
-  }, [addAudit, bootstrap, completeWithTermination, postEvent, secureSessionActive, showWarning]);
+  }, [addAudit, bootstrap, completeWithTermination, postEvent, running, secureSessionActive, showWarning]);
 
   useEffect(() => {
     if (!refreshGuardActive) {
