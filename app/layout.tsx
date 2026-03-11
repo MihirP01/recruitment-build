@@ -7,6 +7,7 @@ import PublicSiteFrame from "@/components/PublicSiteFrame";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { plexMono, plexSans } from "@/app/ui/fonts";
 import { authOptions } from "@/lib/auth/auth";
+import { IS_DEV } from "@/lib/env/isDev";
 import { AUTH_ROLE, type AuthRole } from "@/lib/auth/role";
 import { CTRL_LOCKUP } from "@/lib/brand";
 import { inferTenantFromEmail, TenantSlug } from "@/lib/portal/tenant";
@@ -78,7 +79,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeProvider>
           <AuthProvider session={session}>
             <AuthUIProvider>
-              <PublicSiteFrame>{children}</PublicSiteFrame>
+              <PublicSiteFrame devSuiteEnabled={IS_DEV}>{children}</PublicSiteFrame>
             </AuthUIProvider>
           </AuthProvider>
         </ThemeProvider>

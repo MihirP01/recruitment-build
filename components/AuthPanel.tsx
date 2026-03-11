@@ -7,12 +7,15 @@ import { useAuthUI } from "@/components/AuthUIProvider";
 import AuthForm from "@/components/AuthForm";
 import AuthTabs from "@/components/AuthTabs";
 import DevelopmentAccessPanel from "@/components/dev/DevelopmentAccessPanel";
-import { IS_DEV } from "@/lib/env/isDev";
 
 const PANEL_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 let authPanelScrollLockCount = 0;
 
-export default function AuthPanel() {
+type AuthPanelProps = {
+  devSuiteEnabled?: boolean;
+};
+
+export default function AuthPanel({ devSuiteEnabled = false }: AuthPanelProps) {
   const { data: session } = useSession();
   const { isOpen, mode, setMode, closeAuth } = useAuthUI();
   const shouldReduceMotion = useReducedMotion();
@@ -120,7 +123,7 @@ export default function AuthPanel() {
                     <div className="mt-4 space-y-4">
                       <AuthForm mode={mode} isActive={isOpen} onSuccess={closeAuth} />
                       <AnimatePresence initial={false} mode="wait">
-                        {IS_DEV && mode === "signin" ? (
+                        {devSuiteEnabled && mode === "signin" ? (
                           <motion.div
                             key="dev-access-panel"
                             initial={shouldReduceMotion ? false : { opacity: 0, y: 8, height: 0 }}

@@ -6,7 +6,11 @@ import SignOutStatusIndicator from "@/components/auth/signout-status-indicator";
 import Navbar from "@/components/Navbar";
 import AuthPanel from "@/components/AuthPanel";
 
-export default function PublicSiteFrame({ children }: PropsWithChildren) {
+type PublicSiteFrameProps = PropsWithChildren<{
+  devSuiteEnabled?: boolean;
+}>;
+
+export default function PublicSiteFrame({ children, devSuiteEnabled = false }: PublicSiteFrameProps) {
   const pathname = usePathname();
   const isHomepage = pathname === "/";
 
@@ -25,7 +29,7 @@ export default function PublicSiteFrame({ children }: PropsWithChildren) {
     <div id="app-shell" className={isHomepage ? "bg-[var(--color-app-bg)] text-[var(--color-text-primary)]" : undefined}>
       <SignOutStatusIndicator />
       {isHomepage ? <Navbar /> : null}
-      {isHomepage ? <AuthPanel /> : null}
+      {isHomepage ? <AuthPanel devSuiteEnabled={devSuiteEnabled} /> : null}
       <main id="app-scroll" className={isHomepage ? "system-snap-root" : undefined}>
         {children}
       </main>
