@@ -56,9 +56,9 @@ export default function CinematicSection({ id, tone, isHero = false, children }:
     offset: ["start end", "end start"]
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.28, 0.5, 0.72, 1], [0.45, 0.72, 1, 0.72, 0.45]);
-  const scale = useTransform(scrollYProgress, [0, 0.28, 0.5, 0.72, 1], [0.98, 0.992, 1, 0.992, 0.98]);
-  const blurPx = useTransform(scrollYProgress, [0, 0.28, 0.5, 0.72, 1], [4, 2, 0, 2, 4]);
+  const opacity = useTransform(scrollYProgress, [0, 0.28, 0.5, 0.72, 1], [0.52, 0.76, 1, 0.76, 0.52]);
+  const scale = useTransform(scrollYProgress, [0, 0.28, 0.5, 0.72, 1], [0.985, 0.995, 1, 0.995, 0.985]);
+  const blurPx = useTransform(scrollYProgress, [0, 0.28, 0.5, 0.72, 1], [2.25, 1.1, 0, 1.1, 2.25]);
   const filter = useTransform(blurPx, (value) => `blur(${value.toFixed(2)}px)`);
 
   return (
@@ -101,8 +101,10 @@ export default function CinematicSection({ id, tone, isHero = false, children }:
             }
       }
       transition={TRANSITION}
-      className={`h-auto min-h-[calc(100dvh-var(--nav-offset))] snap-start snap-always border-b border-white/10 bg-[var(--surface-tone)] will-change-transform cursor-pointer md:h-[calc(100dvh-var(--nav-offset))] md:min-h-[calc(100dvh-var(--nav-offset))] [&[data-panel-active='true']]:cursor-default ${
-        isHero ? "relative overflow-hidden" : "relative"
+      className={`h-auto snap-start snap-always border-b border-white/10 bg-[var(--surface-tone)] cursor-pointer [&[data-panel-active='true']]:cursor-default ${
+        isHero
+          ? "relative min-h-[calc(100dvh-var(--nav-offset))] overflow-hidden"
+          : "relative min-h-[calc(100dvh-var(--nav-offset))]"
       }`}
     >
       {children}

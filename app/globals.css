@@ -41,6 +41,11 @@
   --hero-overlay-radial-mid-alpha: 0.42;
   --hero-overlay-radial-edge-alpha: 0.58;
   --hero-overlay-bottom-alpha: 0.6;
+  --hero-ambient-base-rgb: 7 14 24;
+  --hero-ambient-primary-rgb: 72 101 137;
+  --hero-ambient-secondary-rgb: 35 62 90;
+  --hero-ambient-tertiary-rgb: 21 37 55;
+  --hero-ambient-highlight-rgb: 128 154 183;
   --hero-video-opacity: 0.4;
   --hero-video-filter: grayscale(1) contrast(1.2) brightness(0.88) saturate(0.15);
   --hero-video-accent-rgb: 91 126 166;
@@ -86,6 +91,11 @@
   --hero-overlay-radial-mid-alpha: 0.3;
   --hero-overlay-radial-edge-alpha: 0.54;
   --hero-overlay-bottom-alpha: 0.7;
+  --hero-ambient-base-rgb: 8 16 27;
+  --hero-ambient-primary-rgb: 65 93 126;
+  --hero-ambient-secondary-rgb: 31 55 78;
+  --hero-ambient-tertiary-rgb: 18 34 52;
+  --hero-ambient-highlight-rgb: 121 145 172;
   --hero-video-opacity: 0.42;
   --hero-video-filter: grayscale(1) contrast(1.26) brightness(0.84) saturate(0.08);
   --hero-video-accent-rgb: 102 134 170;
@@ -121,6 +131,11 @@
   --hero-overlay-radial-mid-alpha: 0.28;
   --hero-overlay-radial-edge-alpha: 0.5;
   --hero-overlay-bottom-alpha: 0.68;
+  --hero-ambient-base-rgb: 8 19 29;
+  --hero-ambient-primary-rgb: 64 113 128;
+  --hero-ambient-secondary-rgb: 27 74 90;
+  --hero-ambient-tertiary-rgb: 15 48 62;
+  --hero-ambient-highlight-rgb: 116 160 171;
   --hero-video-opacity: 0.34;
   --hero-video-filter: grayscale(1) contrast(1.3) brightness(0.8) saturate(0.06);
   --hero-video-accent-rgb: 93 148 163;
@@ -156,6 +171,11 @@
   --hero-overlay-radial-mid-alpha: 0.1;
   --hero-overlay-radial-edge-alpha: 0.22;
   --hero-overlay-bottom-alpha: 0.24;
+  --hero-ambient-base-rgb: 232 237 242;
+  --hero-ambient-primary-rgb: 132 151 177;
+  --hero-ambient-secondary-rgb: 161 180 200;
+  --hero-ambient-tertiary-rgb: 189 204 219;
+  --hero-ambient-highlight-rgb: 107 127 150;
   --hero-video-opacity: 0.18;
   --hero-video-filter: grayscale(1) contrast(1.28) brightness(1.04) saturate(0.04);
   --hero-video-accent-rgb: 94 118 150;
@@ -191,6 +211,11 @@
   --hero-overlay-radial-mid-alpha: 0.12;
   --hero-overlay-radial-edge-alpha: 0.2;
   --hero-overlay-bottom-alpha: 0.22;
+  --hero-ambient-base-rgb: 241 235 227;
+  --hero-ambient-primary-rgb: 170 145 120;
+  --hero-ambient-secondary-rgb: 195 174 152;
+  --hero-ambient-tertiary-rgb: 214 196 178;
+  --hero-ambient-highlight-rgb: 125 101 80;
   --hero-video-opacity: 0.14;
   --hero-video-filter: grayscale(1) contrast(1.2) brightness(1.08) saturate(0.03);
   --hero-video-accent-rgb: 129 102 75;
@@ -441,6 +466,58 @@ body {
   }
 }
 
+@keyframes premium-drift-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes premium-drift-x {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(12px, 0, 0);
+  }
+}
+
+@keyframes premium-pulse {
+  0%,
+  100% {
+    opacity: 0.34;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.58;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes premium-tilt {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-7deg);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) rotate(-5deg);
+  }
+}
+
+@keyframes premium-orbit {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(4deg) scale(1.02);
+  }
+}
+
 .animate-system-pulse {
   animation: system-pulse 2.8s ease-in-out infinite;
 }
@@ -451,6 +528,26 @@ body {
 
 .system-canvas-breathe {
   animation: system-breathe 7s ease-in-out infinite;
+}
+
+.animate-premium-drift-y {
+  animation: premium-drift-y 11s ease-in-out infinite;
+}
+
+.animate-premium-drift-x {
+  animation: premium-drift-x 13s ease-in-out infinite;
+}
+
+.animate-premium-pulse {
+  animation: premium-pulse 9s ease-in-out infinite;
+}
+
+.animate-premium-tilt {
+  animation: premium-tilt 14s ease-in-out infinite;
+}
+
+.animate-premium-orbit {
+  animation: premium-orbit 18s ease-in-out infinite;
 }
 
 .home-grid-overlay {

@@ -10,16 +10,14 @@ import { scrollToSection } from "@/utils/scrollToSection";
 import AnimatedMenuButton from "@/components/ui/AnimatedMenuButton";
 
 type SectionLink = {
-  id: "about" | "features" | "security" | "intelligence" | "testimonials" | "contact";
+  id: "platform" | "security" | "intelligence" | "contact";
   label: string;
 };
 
 const SECTION_LINKS: SectionLink[] = [
-  { id: "about", label: "About" },
-  { id: "features", label: "Features" },
+  { id: "platform", label: "Platform" },
   { id: "security", label: "Security" },
   { id: "intelligence", label: "Intelligence" },
-  { id: "testimonials", label: "Testimonials" },
   { id: "contact", label: "Contact Us" }
 ];
 

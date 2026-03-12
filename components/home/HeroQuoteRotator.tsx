@@ -18,6 +18,10 @@ type AnimationPhase = "typing" | "holding" | "deleting";
 export default function HeroQuoteRotator({ quotes, priorityCount = 5 }: HeroQuoteRotatorProps) {
   const shouldReduceMotion = useReducedMotion();
   const safeQuotes = useMemo(() => quotes.filter((quote) => quote.trim().length > 0), [quotes]);
+  const reserveQuote = useMemo(
+    () => safeQuotes.reduce((longest, quote) => (quote.length > longest.length ? quote : longest), safeQuotes[0] ?? ""),
+    [safeQuotes]
+  );
   const rotationPool = useMemo(() => {
     if (safeQuotes.length === 0) {
       return [];
@@ -114,23 +118,38 @@ export default function HeroQuoteRotator({ quotes, priorityCount = 5 }: HeroQuot
   const renderedQuote = shouldReduceMotion ? rotationPool[0] : visibleText;
 
   return (
-    <div className="max-w-5xl rounded-xl border border-[rgb(var(--color-accent-rgb)/0.45)] bg-[rgb(var(--color-accent-rgb)/0.14)] p-5 md:p-6">
-      <p className="section-label text-[var(--color-text-subtle)]">Decision Signal</p>
-      <blockquote className="mt-3 min-h-[11rem] md:min-h-[13rem] lg:min-h-[14rem]">
-        <p className="max-w-4xl text-4xl font-semibold leading-[1.08] text-[var(--color-text-primary)] md:text-5xl lg:text-6xl">
-          &ldquo;{renderedQuote}
-          {!shouldReduceMotion ? (
-            <span
-              aria-hidden="true"
-              className="ml-1 inline-block h-[0.9em] w-[0.08em] translate-y-[0.08em] rounded-full bg-[var(--color-accent)] align-baseline motion-safe:animate-pulse"
-            />
-          ) : null}
-          &rdquo;
-        </p>
-      </blockquote>
-      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--color-text-muted)] md:text-base">
-        CTRL frames recruitment as a controlled intelligence process, with auditable inputs and decision-ready outcomes.
-      </p>
+    <div className="max-w-[920px]">
+      <div className="relative overflow-hidden rounded-[30px] border border-[rgb(var(--color-accent-rgb)/0.16)] bg-[linear-gradient(135deg,rgb(var(--color-accent-rgb)/0.04)_0%,var(--color-surface-2)_42%,rgb(var(--color-accent-rgb)/0.02)_100%)] px-6 py-7 md:px-8 md:py-8">
+        <div
+          aria-hidden="true"
+          className="absolute left-0 top-8 h-[calc(100%-4rem)] w-px bg-gradient-to-b from-transparent via-[rgb(var(--color-accent-rgb)/0.38)] to-transparent"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute right-0 top-8 h-[calc(100%-4rem)] w-px bg-gradient-to-b from-transparent via-[rgb(var(--color-accent-rgb)/0.22)] to-transparent"
+        />
+        <blockquote className="relative px-3 py-3 md:px-6">
+          <p
+            aria-hidden="true"
+            className="pointer-events-none invisible max-w-4xl text-[2.15rem] font-semibold leading-[1.08] text-[var(--color-text-primary)] md:text-[2.8rem] lg:text-[3.5rem]"
+          >
+            <span className="text-[rgb(var(--color-accent-rgb)/0.34)]">&ldquo;</span>
+            {reserveQuote}
+            <span className="text-[rgb(var(--color-accent-rgb)/0.34)]">&rdquo;</span>
+          </p>
+          <p className="absolute inset-3 max-w-4xl text-[2.15rem] font-semibold leading-[1.08] text-[var(--color-text-primary)] md:inset-x-6 md:inset-y-3 md:text-[2.8rem] lg:text-[3.5rem]">
+            <span className="mr-[0.08em] text-[rgb(var(--color-accent-rgb)/0.34)]">&ldquo;</span>
+            {renderedQuote}
+            {!shouldReduceMotion ? (
+              <span
+                aria-hidden="true"
+                className="ml-[0.06em] inline-block h-[0.88em] w-[0.08em] translate-y-[0.08em] rounded-full bg-[var(--color-accent)] align-baseline motion-safe:animate-pulse"
+              />
+            ) : null}
+            <span className="ml-[0.06em] text-[rgb(var(--color-accent-rgb)/0.34)]">&rdquo;</span>
+          </p>
+        </blockquote>
+      </div>
     </div>
   );
 }
